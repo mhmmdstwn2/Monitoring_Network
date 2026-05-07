@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Monitor — IT Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #0a0c10;
+  --bg2:       #0f1218;
+  --bg3:       #151a22;
+  --border:    #1e2738;
+  --accent:    #00d4ff;
+  --accent2:   #0087ff;
+  --green:     #00e676;
+  --yellow:    #ffd740;
+  --red:       #ff3d57;
+  --orange:    #ff6d00;
+  --text:      #c8d6e5;
+  --text-dim:  #4a5a6e;
+  --mono:      'Share Tech Mono', monospace;
+  --sans:      'Rajdhani', sans-serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Scanline overlay ── */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,212,255,0.015) 2px, rgba(0,212,255,0.015) 4px);
+  pointer-events:none; z-index:9999;
+}
+
+/* ── Header ── */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 28px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  position: sticky; top:0; z-index:100;
+}
+
+.logo {
+  display:flex; align-items:center; gap:12px;
+}
+.logo-icon {
+  width:36px; height:36px;
+  border: 2px solid var(--accent);
+  border-radius:6px;
+  display:grid; place-items:center;
+  position:relative;
+}
+.logo-icon::before {
+  content:'';
+  width:10px; height:10px;
+  background: var(--accent);
+  border-radius:50%;
+  box-shadow: 0 0 12px var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+.logo-text { font-size:20px; font-weight:700; letter-spacing:2px; color:#fff; }
+.logo-sub  { font-size:11px; font-family:var(--mono); color:var(--text-dim); letter-spacing:1px; }
+
+.header-right { display:flex; align-items:center; gap:20px; }
+
+#clock {
+  font-family:var(--mono);
+  font-size:13px;
+  color: var(--accent);
+  letter-spacing:2px;
+}
+
+#last-update {
+  font-family:var(--mono);
+  font-size:11px;
+  color: var(--text-dim);
+}
+
+.refresh-btn {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 6px 14px;
+  border-radius:4px;
+  font-family:var(--sans);
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:1px;
+  cursor:pointer;
+  transition: all .2s;
+}
+.refresh-btn:hover { background: var(--accent); color: var(--bg); }
+
+/* ── Summary bar ── */
+.summary-bar {
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap:1px;
+  background: var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.summary-item {
+  background: var(--bg2);
+  padding: 14px 24px;
+  display:flex; align-items:center; gap:14px;
+}
+.summary-num {
+  font-size:36px;
+  font-weight:700;
+  font-family:var(--mono);
+  line-height:1;
+}
+.summary-label { font-size:12px; color:var(--text-dim); letter-spacing:1px; text-transform:uppercase; margin-top:4px; }
+.s-total  .summary-num { color: var(--accent); }
+.s-online .summary-num { color: var(--green); }
+.s-warn   .summary-num { color: var(--yellow); }
+.s-off    .summary-num { color: var(--red); }
+.summary-dot {
+  width:10px; height:10px; border-radius:50%; flex-shrink:0;
+}
+.s-online .summary-dot { background:var(--green); box-shadow:0 0 8px var(--green); }
+.s-warn   .summary-dot { background:var(--yellow); box-shadow:0 0 8px var(--yellow); }
+.s-off    .summary-dot { background:var(--red); box-shadow:0 0 8px var(--red); }
+.s-total  .summary-dot { background:var(--accent); box-shadow:0 0 8px var(--accent); }
+
+/* ── Main grid ── */
+main { padding: 24px 28px; }
+
+.section-title {
+  font-size:11px;
+  font-family:var(--mono);
+  color:var(--text-dim);
+  letter-spacing:3px;
+  text-transform:uppercase;
+  margin-bottom:16px;
+  display:flex; align-items:center; gap:10px;
+}
+.section-title::after {
+  content:'';
+  flex:1; height:1px; background: var(--border);
+}
+
+/* ── Device cards grid ── */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.device-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color .2s, transform .2s;
+  animation: fadeIn .4s ease both;
+}
+.device-card:hover { border-color: var(--accent2); transform: translateY(-2px); }
+.device-card.offline { border-color: rgba(255,61,87,.25); }
+.device-card.warning { border-color: rgba(255,215,64,.25); }
+.device-card.online  { border-color: rgba(0,230,118,.15); }
+
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+.card-header {
+  padding: 14px 16px;
+  display:flex; align-items:center; justify-content:space-between;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg3);
+}
+.card-hostname {
+  font-size:15px; font-weight:700; color:#fff; letter-spacing:.5px;
+}
+.card-ip {
+  font-family:var(--mono); font-size:11px; color:var(--text-dim); margin-top:2px;
+}
+.status-badge {
+  padding: 4px 10px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:600;
+  font-family:var(--mono);
+  letter-spacing:1px;
+}
+.badge-online  { background:rgba(0,230,118,.15); color:var(--green); border:1px solid rgba(0,230,118,.3); }
+.badge-offline { background:rgba(255,61,87,.15);  color:var(--red);   border:1px solid rgba(255,61,87,.3); }
+.badge-error   { background:rgba(255,109,0,.15);  color:var(--orange);border:1px solid rgba(255,109,0,.3); }
+
+.card-body { padding: 16px; }
+
+/* ── Metric row ── */
+.metric-row { margin-bottom: 14px; }
+.metric-row:last-child { margin-bottom:0; }
+.metric-header {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:6px;
+}
+.metric-label {
+  font-size:11px; color:var(--text-dim); letter-spacing:1px; text-transform:uppercase;
+  display:flex; align-items:center; gap:6px;
+}
+.metric-icon { width:14px; height:14px; opacity:.6; }
+.metric-value {
+  font-family:var(--mono); font-size:14px; font-weight:600;
+}
+.val-ok   { color: var(--green); }
+.val-warn { color: var(--yellow); }
+.val-crit { color: var(--red); }
+.val-null { color: var(--text-dim); }
+
+/* ── Progress bar ── */
+.bar-track {
+  height:6px; background:var(--bg3); border-radius:3px; overflow:hidden;
+  border: 1px solid var(--border);
+}
+.bar-fill {
+  height:100%; border-radius:3px;
+  transition: width 1s cubic-bezier(.4,0,.2,1);
+}
+.fill-ok   { background: linear-gradient(90deg, #00b248, #00e676); }
+.fill-warn { background: linear-gradient(90deg, #e6a000, #ffdd40); }
+.fill-crit { background: linear-gradient(90deg, #c0001a, #ff3d57); }
+.fill-null { background: var(--border); width:100% !important; }
+
+/* ── Card footer ── */
+.card-footer {
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  display:flex; justify-content:space-between; align-items:center;
+  background: var(--bg3);
+}
+.footer-proto {
+  font-family:var(--mono); font-size:10px;
+  padding: 2px 8px; border-radius:3px;
+  background: var(--border); color:var(--text-dim);
+}
+.footer-update { font-family:var(--mono); font-size:10px; color:var(--text-dim); }
+
+/* ── Interface counters ── */
+.iface-row {
+  display:flex; gap:10px; margin-top:10px;
+}
+.iface-chip {
+  flex:1; padding:8px 10px; border-radius:6px;
+  text-align:center;
+}
+.iface-chip.up   { background:rgba(0,230,118,.08); border:1px solid rgba(0,230,118,.2); }
+.iface-chip.down { background:rgba(255,61,87,.08);  border:1px solid rgba(255,61,87,.2); }
+.iface-num  { font-family:var(--mono); font-size:20px; font-weight:700; }
+.iface-chip.up   .iface-num { color:var(--green); }
+.iface-chip.down .iface-num { color:var(--red); }
+.iface-lbl  { font-size:10px; color:var(--text-dim); letter-spacing:1px; text-transform:uppercase; }
+
+/* ── Error message ── */
+.error-msg {
+  font-family:var(--mono); font-size:11px; color:var(--red);
+  padding:8px 10px; background:rgba(255,61,87,.07);
+  border-radius:4px; border:1px solid rgba(255,61,87,.2);
+  margin-top:4px; word-break:break-all;
+}
+
+/* ── Loading ── */
+#loading {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  min-height:60vh; gap:16px;
+}
+.spinner {
+  width:48px; height:48px;
+  border:2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius:50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+.loading-text { font-family:var(--mono); color:var(--text-dim); font-size:13px; letter-spacing:2px; }
+
+/* ── Pulse anim ── */
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(.8)} }
+
+/* ── Offline overlay ── */
+.offline-overlay {
+  display:flex; flex-direction:column; align-items:center;
+  padding:24px 16px; gap:8px;
+}
+.offline-icon { font-size:32px; opacity:.4; }
+.offline-text { font-family:var(--mono); font-size:12px; color:var(--text-dim); }
+
+/* ── Responsive ── */
+@media (max-width:768px) {
+  .summary-bar { grid-template-columns:repeat(2,1fr); }
+  header { padding:12px 16px; }
+  main   { padding:16px; }
+  .cards-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon"></div>
+    <div>
+      <div class="logo-text">NETMON</div>
+      <div class="logo-sub">NETWORK MONITORING SYSTEM</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div>
+      <div id="clock">--:--:--</div>
+      <div id="last-update">belum ada data</div>
+    </div>
+    <button class="refresh-btn" onclick="loadData()">↻ REFRESH</button>
+  </div>
+</header>
+
+<div class="summary-bar">
+  <div class="summary-item s-total">
+    <div class="summary-dot"></div>
+    <div><div class="summary-num" id="s-total">—</div><div class="summary-label">Total Device</div></div>
+  </div>
+  <div class="summary-item s-online">
+    <div class="summary-dot"></div>
+    <div><div class="summary-num" id="s-online">—</div><div class="summary-label">Online</div></div>
+  </div>
+  <div class="summary-item s-warn">
+    <div class="summary-dot"></div>
+    <div><div class="summary-num" id="s-warn">—</div><div class="summary-label">Warning</div></div>
+  </div>
+  <div class="summary-item s-off">
+    <div class="summary-dot"></div>
+    <div><div class="summary-num" id="s-off">—</div><div class="summary-label">Offline</div></div>
+  </div>
+</div>
+
+<main>
+  <div class="section-title">Status Device</div>
+  <div id="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">MEMUAT DATA...</div>
+  </div>
+  <div class="cards-grid" id="cards-grid" style="display:none"></div>
+</main>
+
+<script>
+// ── Clock ──────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+setInterval(updateClock, 1000); updateClock();
+
+// ── Helpers ────────────────────────────────────────────
+function valClass(v, warnAt, critAt) {
+  if (v === null || v === undefined) return 'val-null';
+  if (v >= critAt) return 'val-crit';
+  if (v >= warnAt) return 'val-warn';
+  return 'val-ok';
+}
+function fillClass(v, warnAt, critAt) {
+  if (v === null || v === undefined) return 'fill-null';
+  if (v >= critAt) return 'fill-crit';
+  if (v >= warnAt) return 'fill-warn';
+  return 'fill-ok';
+}
+function fmtVal(v, unit) {
+  if (v === null || v === undefined) return 'N/A';
+  return `${v}${unit}`;
+}
+
+// ── Render satu metric bar ─────────────────────────────
+function metricBar(label, icon, value, unit, warnAt, critAt) {
+  const pct      = value !== null ? Math.min(value, 100) : 0;
+  const vClass   = valClass(value, warnAt, critAt);
+  const fClass   = fillClass(value, warnAt, critAt);
+  const display  = fmtVal(value, unit);
+  return `
+  <div class="metric-row">
+    <div class="metric-header">
+      <span class="metric-label">${icon} ${label}</span>
+      <span class="metric-value ${vClass}">${display}</span>
+    </div>
+    <div class="bar-track">
+      <div class="bar-fill ${fClass}" style="width:${pct}%"></div>
+    </div>
+  </div>`;
+}
+
+// ── Render satu device card ────────────────────────────
+function renderCard(d, idx) {
+  const isOnline  = d.status === 'online';
+  const isOffline = d.status === 'offline';
+  const isError   = d.status === 'error';
+
+  // warning jika CPU/mem/temp tinggi
+  const hasWarn = isOnline && (
+    (d.cpu         !== null && d.cpu         >= 70) ||
+    (d.memory      !== null && d.memory      >= 70) ||
+    (d.temperature !== null && d.temperature >= 50)
+  );
+
+  const cardClass = isOffline ? 'offline' : isError ? 'offline' : hasWarn ? 'warning' : 'online';
+  const badge     = isOffline ? `<span class="status-badge badge-offline">OFFLINE</span>`
+                  : isError   ? `<span class="status-badge badge-error">ERROR</span>`
+                  :             `<span class="status-badge badge-online">ONLINE</span>`;
+
+  let body = '';
+  if (!isOnline) {
+    body = `
+    <div class="offline-overlay">
+      <div class="offline-icon">${isError ? '⚠' : '✕'}</div>
+      <div class="offline-text">${d.error || 'Device tidak dapat dihubungi'}</div>
+    </div>`;
+  } else {
+    const ifaceHtml = d.interfaces && (d.interfaces.up !== undefined)
+      ? `<div class="iface-row">
+          <div class="iface-chip up"><div class="iface-num">${d.interfaces.up ?? '—'}</div><div class="iface-lbl">Port UP</div></div>
+          <div class="iface-chip down"><div class="iface-num">${d.interfaces.down ?? '—'}</div><div class="iface-lbl">Port DOWN</div></div>
+        </div>` : '';
+
+    body = `
+    <div class="card-body">
+      ${metricBar('CPU Usage',    '⚡', d.cpu,         '%', 70, 90)}
+      ${metricBar('Memory',       '◈', d.memory,      '%', 70, 90)}
+      ${metricBar('Temperature',  '⬥', d.temperature, '°C', 50, 65)}
+      ${ifaceHtml}
+    </div>`;
+  }
+
+  return `
+  <div class="device-card ${cardClass}" style="animation-delay:${idx * 60}ms">
+    <div class="card-header">
+      <div>
+        <div class="card-hostname">${d.hostname}</div>
+        <div class="card-ip">${d.ip}</div>
+      </div>
+      ${badge}
+    </div>
+    ${body}
+    <div class="card-footer">
+      <span class="footer-proto">${d.protocol}:${d.port ?? (d.protocol==='SSH'?22:23)}</span>
+      <span class="footer-update">${d.last_update}</span>
+    </div>
+  </div>`;
+}
+
+// ── Load data dari metrics.json ────────────────────────
+async function loadData() {
+  try {
+    const r    = await fetch(`data/metrics.json?t=${Date.now()}`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+
+    // Summary
+    const warn = data.devices.filter(d =>
+      d.status === 'online' && (
+        (d.cpu         >= 70) ||
+        (d.memory      >= 70) ||
+        (d.temperature >= 50)
+      )).length;
+
+    document.getElementById('s-total').textContent  = data.total;
+    document.getElementById('s-online').textContent = data.online;
+    document.getElementById('s-warn').textContent   = warn;
+    document.getElementById('s-off').textContent    = data.offline;
+    document.getElementById('last-update').textContent = 'update: ' + data.generated_at;
+
+    // Cards
+    const grid = document.getElementById('cards-grid');
+    grid.innerHTML = data.devices.map((d, i) => renderCard(d, i)).join('');
+
+    document.getElementById('loading').style.display = 'none';
+    grid.style.display = 'grid';
+
+  } catch (e) {
+    document.getElementById('loading').innerHTML = `
+      <div style="text-align:center">
+        <div style="font-size:40px;opacity:.3">⚠</div>
+        <div style="font-family:var(--mono);color:var(--red);margin-top:12px;font-size:13px">
+          Gagal memuat data
+        </div>
+        <div style="font-family:var(--mono);color:var(--text-dim);font-size:11px;margin-top:8px">
+          Pastikan Collect-Metrics.ps1 sudah dijalankan<br>dan file data/metrics.json tersedia
+        </div>
+        <button class="refresh-btn" onclick="loadData()" style="margin-top:16px">↻ COBA LAGI</button>
+      </div>`;
+  }
+}
+
+// Load awal + auto-refresh tiap 30 detik
+loadData();
+setInterval(loadData, 30000);
+</script>
+</body>
+</html>
