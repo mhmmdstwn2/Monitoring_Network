@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NETMON | Admin Management</title>
+    <title>NETMON | Management Console</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -16,6 +16,7 @@
             --border: #e2e8f0;
             --danger: #ef4444;
             --success: #10b981;
+            --monitor-bg: #0a0c12;
         }
 
         body {
@@ -35,6 +36,9 @@
             padding: 24px;
             display: flex;
             flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
         }
 
         .logo {
@@ -57,18 +61,22 @@
             margin-bottom: 8px;
             font-weight: 500;
             transition: 0.2s;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
         }
-        .nav-item.active {
-            background: #eff6ff;
-            color: var(--primary);
-        }
+        .nav-item.active { background: #eff6ff; color: var(--primary); }
         .nav-item:hover:not(.active) { background: #f1f5f9; }
 
         /* Main Content */
         .main-content {
             flex: 1;
+            margin-left: 260px;
             padding: 40px;
-            max-width: 1000px;
+            max-width: 1100px;
         }
 
         header {
@@ -80,10 +88,10 @@
 
         h1 { font-size: 1.8rem; margin: 0; font-weight: 700; }
 
-        /* Stat Cards */
+        /* Stats Card */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 20px;
             margin-bottom: 32px;
         }
@@ -94,45 +102,63 @@
             border: 1px solid var(--border);
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
-        .stat-label { color: var(--text-muted); font-size: 0.875rem; font-weight: 500; }
-        .stat-value { font-size: 1.5rem; font-weight: 700; margin-top: 4px; }
 
-        /* Form Add User */
+        /* Form Controls */
         .action-bar {
             background: #fff;
-            padding: 20px;
+            padding: 24px;
             border-radius: 12px;
             border: 1px solid var(--border);
             display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 32px;
             align-items: center;
         }
-        input {
-            padding: 10px 16px;
+        
+        .input-wrapper {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
             border: 1px solid var(--border);
             border-radius: 8px;
             outline: none;
-            flex: 1;
             font-family: inherit;
+            box-sizing: border-box;
+            background: #fcfcfc;
         }
-        input:focus { border-color: var(--primary); ring: 2px solid #bfdbfe; }
-        
+
+        input:focus, select:focus { border-color: var(--primary); background: #fff; }
+
+        .toggle-pw {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            user-select: none;
+        }
+
         .btn {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
             border: none;
             transition: 0.2s;
-            font-family: inherit;
+            white-space: nowrap;
         }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-hover); }
-        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
-        .btn-outline:hover { background: #f1f5f9; }
 
-        /* Table */
+        /* Table Area */
         .table-container {
             background: #fff;
             border-radius: 12px;
@@ -141,8 +167,7 @@
         }
         table { width: 100%; border-collapse: collapse; }
         th { background: #f8fafc; text-align: left; padding: 16px; font-size: 0.875rem; color: var(--text-muted); border-bottom: 1px solid var(--border); }
-        td { padding: 16px; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
-        tr:last-child td { border-bottom: none; }
+        td { padding: 16px; border-bottom: 1px solid var(--border); }
         
         .badge {
             padding: 4px 10px;
@@ -154,121 +179,161 @@
         .badge-admin { background: #fee2e2; color: #b91c1c; }
         .badge-user { background: #dcfce7; color: #15803d; }
 
-        .btn-del { color: var(--danger); font-weight: 600; background: none; border: none; cursor: pointer; padding: 0; }
-        .btn-del:hover { text-decoration: underline; }
+        /* MONITOR VIEW */
+        #section-monitor {
+            background: var(--monitor-bg);
+            border-radius: 16px;
+            border: 4px solid #1e293b;
+            overflow: hidden;
+            position: relative;
+        }
+        iframe { width: 100%; height: 600px; border: none; }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
         <div class="logo">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             NETMON
         </div>
         <nav class="nav-menu">
-            <a href="#" class="nav-item active">User Management</a>
-            <a href="index.html" class="nav-item">Network Monitor</a>
-            <a href="#" class="nav-item">System Logs</a>
+            <button class="nav-item active" id="btn-users" onclick="showSection('users')">User Management</button>
+            <button class="nav-item" id="btn-monitor" onclick="showSection('monitor')">Live Monitor (TV)</button>
         </nav>
-        <button class="btn btn-outline" onclick="logout()">Logout</button>
+        <button class="nav-item" style="color:var(--danger); margin-top: auto;" onclick="logout()">Logout</button>
     </div>
 
     <div class="main-content">
         <header>
-            <h1>User Management</h1>
+            <h1 id="page-title">User Management</h1>
             <div id="admin-name" style="font-weight: 500; color: var(--text-muted);"></div>
         </header>
 
-        <div class="stats-grid">
-            <div class="card">
-                <div class="stat-label">Total Users</div>
-                <div class="stat-value" id="count-users">0</div>
+        <div id="section-users">
+            <div class="stats-grid">
+                <div class="card">
+                    <div style="color: var(--text-muted); font-size: 0.875rem;">Total Accounts</div>
+                    <div id="count-users" style="font-size: 1.5rem; font-weight: 700; margin-top: 5px;">0</div>
+                </div>
+                <div class="card">
+                    <div style="color: var(--text-muted); font-size: 0.875rem;">Security Status</div>
+                    <div style="color: var(--success); font-weight: 600; margin-top: 5px;">● Active Firewall</div>
+                </div>
             </div>
-            <div class="card">
-                <div class="stat-label">System Status</div>
-                <div class="stat-value" style="color: var(--success); font-size: 1.1rem;">● Operational</div>
+
+            <div class="action-bar">
+                <div class="input-wrapper">
+                    <input type="text" id="new_user" placeholder="Enter Username...">
+                </div>
+                
+                <div class="input-wrapper">
+                    <input type="password" id="new_pass" placeholder="Enter Access Key...">
+                    <span class="toggle-pw" onclick="togglePassword()">👁️</span>
+                </div>
+
+                <div class="input-wrapper" style="flex: 0.5;">
+                    <select id="new_role">
+                        <option value="user">User (Viewer)</option>
+                        <option value="admin">Admin (Full Access)</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" onclick="addUser()">+ Create User</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>USERNAME</th>
+                            <th>ACCESS ROLE</th>
+                            <th style="text-align: right;">MANAGEMENT</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-list"></tbody>
+                </table>
             </div>
         </div>
 
-        <div class="action-bar">
-            <input type="text" id="new_user" placeholder="Username">
-            <input type="password" id="new_pass" placeholder="Password">
-            <button class="btn btn-primary" onclick="addUser()">+ Create User</button>
-        </div>
-
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>USERNAME</th>
-                        <th>ROLE</th>
-                        <th style="text-align: right;">ACTIONS</th>
-                    </tr>
-                </thead>
-                <tbody id="user-list">
-                    </tbody>
-            </table>
+        <div id="section-monitor" style="display: none;">
+            <div style="background:#1e293b; padding: 10px 20px; display: flex; justify-content: space-between; font-family: monospace; color:#00d4ff;">
+                <span>● LIVE_FEED_STATUS_OK</span>
+                <span id="live-clock">00:00:00</span>
+            </div>
+            <iframe src="index.html" id="monitor-frame"></iframe>
         </div>
     </div>
 
     <script>
-        // Security Check
-        if (localStorage.getItem('netmon_role') !== 'admin') {
-            window.location.href = 'login.html';
+        // Check Session
+        if (localStorage.getItem('netmon_role') !== 'admin') { window.location.href = 'login.html'; }
+        document.getElementById('admin-name').innerText = "SuperAdmin: " + (localStorage.getItem('netmon_user') || 'Awan');
+
+        // Toggle Password Visibility
+        function togglePassword() {
+            const pwInput = document.getElementById('new_pass');
+            pwInput.type = pwInput.type === 'password' ? 'text' : 'password';
         }
 
-        document.getElementById('admin-name').innerText = "Admin: " + (localStorage.getItem('netmon_user') || 'Awan');
+        // Tab Switching
+        function showSection(section) {
+            document.getElementById('section-users').style.display = section === 'users' ? 'block' : 'none';
+            document.getElementById('section-monitor').style.display = section === 'monitor' ? 'block' : 'none';
+            document.getElementById('btn-users').classList.toggle('active', section === 'users');
+            document.getElementById('btn-monitor').classList.toggle('active', section === 'monitor');
+            document.getElementById('page-title').innerText = section === 'users' ? 'User Management' : 'Live Monitor';
+            if(section === 'users') loadUsers();
+        }
 
+        // Clock for TV
+        setInterval(() => { document.getElementById('live-clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+
+        // API ACTIONS
         async function loadUsers() {
             try {
                 const res = await fetch('/api/admin-action?action=list');
                 const users = await res.json();
-                const container = document.getElementById('user-list');
                 document.getElementById('count-users').innerText = users.length;
-
+                const container = document.getElementById('user-list');
                 container.innerHTML = users.map(u => `
                     <tr>
-                        <td style="font-weight: 500;">${u.username}</td>
+                        <td style="font-weight: 600;">${u.username}</td>
                         <td><span class="badge ${u.role === 'admin' ? 'badge-admin' : 'badge-user'}">${u.role || 'user'}</span></td>
                         <td style="text-align: right;">
-                            <button class="btn-del" onclick="deleteUser('${u.username}')">Delete Account</button>
+                            <button onclick="deleteUser('${u.username}')" style="color:var(--danger); background:none; border:none; cursor:pointer; font-weight:600;">Delete Access</button>
                         </td>
                     </tr>
                 `).join('');
-            } catch (err) {
-                console.error("Failed to load users");
-            }
+            } catch (err) { console.error("API Error"); }
         }
 
         async function addUser() {
             const username = document.getElementById('new_user').value;
             const password = document.getElementById('new_pass').value;
+            const role = document.getElementById('new_role').value;
 
-            if(!username || !password) return alert("Isi semua field!");
+            if(!username || !password) return alert("All fields are required!");
 
+            // Update: Mengirim role juga ke backend
             const res = await fetch('/api/auth', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ action: 'signup', username, password })
+                body: JSON.stringify({ action: 'signup', username, password, role })
             });
 
             const data = await res.json();
             if(data.success) {
-                alert("User berhasil ditambahkan!");
+                alert("Account Created Successfully!");
                 document.getElementById('new_user').value = "";
                 document.getElementById('new_pass').value = "";
                 loadUsers();
-            } else {
-                alert("Error: " + data.message);
-            }
+            } else { alert(data.message); }
         }
 
         async function deleteUser(username) {
-            if(username === localStorage.getItem('netmon_user')) {
-                return alert("Anda tidak bisa menghapus akun sendiri!");
-            }
-
-            if(confirm('Hapus akses untuk user ' + username + '?')) {
+            if(username === localStorage.getItem('netmon_user')) return alert("Self-deletion is blocked!");
+            if(confirm('Revoke access for ' + username + '?')) {
                 await fetch('/api/admin-action', {
                     method: 'POST',
                     body: JSON.stringify({ action: 'delete', username })
@@ -277,11 +342,7 @@
             }
         }
 
-        function logout() {
-            localStorage.clear();
-            window.location.href = 'login.html';
-        }
-
+        function logout() { localStorage.clear(); window.location.href = 'login.html'; }
         loadUsers();
     </script>
 </body>
