@@ -2,89 +2,192 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NETMON - Security Access</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #00d4ff; --bg: #0a0c10; --border: #1e2738; }
-        body { background: var(--bg); color: #fff; font-family: 'Rajdhani', sans-serif; display: grid; place-items: center; min-height: 100vh; margin: 0; }
-        .auth-container { background: #0f1218; border: 1px solid var(--border); padding: 40px; border-radius: 8px; width: 320px; box-shadow: 0 0 20px rgba(0,212,255,0.05); }
-        h2 { font-family: 'Share Tech Mono', monospace; text-align: center; color: var(--accent); letter-spacing: 2px; }
-        input { background: #151a22; border: 1px solid var(--border); color: #fff; padding: 12px; width: 100%; margin-bottom: 15px; border-radius: 4px; box-sizing: border-box; outline: none; transition: 0.3s; }
-        input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(0,212,255,0.2); }
-        button { width: 100%; padding: 12px; background: var(--accent); border: none; font-weight: bold; cursor: pointer; border-radius: 4px; transition: 0.3s; font-family: 'Share Tech Mono'; }
-        button:hover { background: #0087ff; transform: scale(1.02); }
-        .toggle-link { text-align: center; margin-top: 15px; font-size: 13px; color: #4a5a6e; cursor: pointer; }
-        .toggle-link b { color: var(--accent); }
+        :root {
+            --accent: #00d4ff;
+            --bg: #0a0c10;
+            --bg-card: #0f1218;
+            --border: #1e2738;
+            --text: #c8d6e5;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            display: grid;
+            place-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* Scanline effect */
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,212,255,0.02) 2px, rgba(0,212,255,0.02) 4px);
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .auth-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 40px;
+            border-radius: 12px;
+            width: 340px;
+            box-shadow: 0 0 40px rgba(0,212,255,0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        h2 {
+            font-family: 'Share Tech Mono', monospace;
+            text-align: center;
+            color: var(--accent);
+            letter-spacing: 4px;
+            margin-bottom: 35px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(0,212,255,0.5);
+        }
+
+        .input-group { margin-bottom: 20px; }
+
+        input {
+            background: #151a22;
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 14px;
+            width: 100%;
+            border-radius: 4px;
+            box-sizing: border-box;
+            outline: none;
+            transition: 0.3s;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(0,212,255,0.15);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            border: none;
+            color: #000;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: 0.3s;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #0087ff;
+            box-shadow: 0 0 20px rgba(0,212,255,0.4);
+        }
+
+        .status-msg {
+            font-size: 12px;
+            text-align: center;
+            margin-top: 20px;
+            font-family: 'Share Tech Mono', monospace;
+            min-height: 18px;
+            letter-spacing: 1px;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 11px;
+            color: #4a5a6e;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
     <div class="auth-container">
-        <h2 id="title">SYSTEM LOGIN</h2>
-        <input type="email" id="email" placeholder="Terminal Email...">
-        <input type="password" id="password" placeholder="Access Key...">
-        <button onclick="handleAuth()" id="btn">AUTHORIZE</button>
-        <div class="toggle-link" onclick="toggle()">Switch to <b id="toggle-text">Sign Up</b></div>
+        <h2>CENTRAL LOGIN</h2>
+        
+        <div class="input-group">
+            <input type="text" id="username" placeholder="USERNAME" autocomplete="off">
+        </div>
+        
+        <div class="input-group">
+            <input type="password" id="password" placeholder="ACCESS KEY">
+        </div>
+
+        <button id="auth-btn" onclick="handleAuth()">AUTHORIZE ACCESS</button>
+        
+        <div id="status" class="status-msg"></div>
+
+        <div class="footer-note">Unauthorized access is strictly prohibited</div>
     </div>
 
     <script>
-        let isLogin = true;
-
-        function toggle() {
-            isLogin = !isLogin;
-            document.getElementById('title').innerText = isLogin ? "SYSTEM LOGIN" : "CREATE ACCOUNT";
-            document.getElementById('btn').innerText = isLogin ? "AUTHORIZE" : "REGISTER";
-            document.getElementById('toggle-text').innerText = isLogin ? "Sign Up" : "Login";
-        }
-
         async function handleAuth() {
-            const email = document.getElementById('email').value;
+            const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            const btn = document.getElementById('btn');
-            
-            if (!email || !password) {
-                alert("Email and Password are required!");
+            const btn = document.getElementById('auth-btn');
+            const status = document.getElementById('status');
+
+            if (!username || !password) {
+                status.style.color = "#ff3d57";
+                status.innerText = "> ERROR: EMPTY_FIELDS";
                 return;
             }
 
-            // Ubah teks tombol saat loading
-            const originalText = btn.innerText;
-            btn.innerText = "PROCESSING...";
             btn.disabled = true;
+            status.style.color = "var(--accent)";
+            status.innerText = "> ESTABLISHING SECURE CONNECTION...";
 
             try {
                 const res = await fetch('/api/auth', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        action: isLogin ? 'login' : 'signup', 
-                        email, 
-                        password 
-                    })
+                    body: JSON.stringify({ action: 'login', username, password })
                 });
 
                 const data = await res.json();
 
                 if (data.success) {
-                    if (isLogin) {
-                        // Jika login, simpan token dan masuk
-                        localStorage.setItem('netmon_token', data.token);
-                        window.location.href = 'index.html';
-                    } else {
-                        // Jika signup berhasil, pindah ke mode login
-                        alert("SIGNUP SUCCESS! Please login.");
-                        toggle();
-                    }
+                    status.innerText = "> ACCESS GRANTED. SYNCING ROLE...";
+                    
+                    localStorage.setItem('netmon_token', data.token);
+                    localStorage.setItem('netmon_role', data.role);
+                    localStorage.setItem('netmon_user', username);
+
+                    setTimeout(() => {
+                        if (data.role === 'admin') {
+                            window.location.href = 'admin.html';
+                        } else {
+                            window.location.href = 'index.html';
+                        }
+                    }, 1000);
                 } else {
-                    // Tampilkan pesan error dari MongoDB/Backend
-                    alert("ACCESS DENIED: " + (data.message || "Unknown Error"));
+                    status.style.color = "#ff3d57";
+                    status.innerText = "> FAILED: " + (data.message || "INVALID_CREDENTIALS");
+                    btn.disabled = false;
                 }
-            } catch (error) {
-                alert("CONNECTION ERROR: Could not reach server.");
-            } finally {
-                btn.innerText = originalText;
+            } catch (err) {
+                status.style.color = "#ff3d57";
+                status.innerText = "> FATAL: CONNECTION_TIMEOUT";
                 btn.disabled = false;
             }
         }
+
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleAuth();
+        });
     </script>
 </body>
 </html>
