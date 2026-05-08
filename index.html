@@ -5,7 +5,7 @@
     // ── Security Check ────────────────────────────────────
     // Jika tidak ada token di localStorage, paksa kembali ke login
     if (!localStorage.getItem('netmon_token')) {
-        window.location.href = 'auth.html';
+        window.location.href = 'login.html';
     }
 </script>
 <meta charset="UTF-8">
@@ -366,7 +366,7 @@ main { padding: 24px 28px; }
 // ── Auth Logic ─────────────────────────────────────────
 function logout() {
     localStorage.removeItem('netmon_token');
-    window.location.href = 'auth.html';
+    window.location.href = 'login.html';
 }
 
 // ── Clock ──────────────────────────────────────────────
