@@ -2,11 +2,12 @@
 # Collect-Metrics.ps1
 # Polling CPU, Memory, Temperature via SSH ke semua device
 # Output: data/metrics.json (dibaca oleh dashboard web)
+# Auto-Push ke GitHub untuk Vercel Deployment
 # =============================================================
 
 param(
     [string]$ConfigPath = "$PSScriptRoot\..\config\devices.csv",
-    [string]$DataPath   = "$PSScriptRoot\..\dashboard\data"
+    [string]$DataPath   = "$PSScriptRoot\..\data" # Disesuaikan ke folder data/ di root repo
 )
 
 # Install Posh-SSH jika belum ada
@@ -21,9 +22,7 @@ if (-not (Test-Path $DataPath)) { New-Item -ItemType Directory -Path $DataPath |
 # ── Parsing output Huawei CPU ─────────────────────────────
 function Parse-HuaweiCPU {
     param($output)
-    # Cek format S310 ("System CPU Using Percentage : 9%")
     if ($output -match "System CPU Using Percentage\s*:\s*(\d+)") { return [int]$Matches[1] }
-    # Cek format S5700 ("CPU Usage : 23%"). Abaikan jika ada kata "Max"
     if ($output -match "(?<!Max\s)CPU Usage\s*:\s*(\d+)") { return [int]$Matches[1] }
     if ($output -match "(\d+)%") { return [int]$Matches[1] }
     return $null
@@ -32,9 +31,7 @@ function Parse-HuaweiCPU {
 # ── Parsing output Huawei Memory ─────────────────────────
 function Parse-HuaweiMemory {
     param($output)
-    # Cek format S310 ("Physical Memory Using Percentage: 55%")
     if ($output -match "Physical Memory Using Percentage\s*:\s*(\d+)") { return [int]$Matches[1] }
-    # Cek format S5700 ("Memory Using Ratio  :  45%")
     if ($output -match "Memory Using Ratio\s*:\s*(\d+)") { return [int]$Matches[1] }
     if ($output -match "(\d+)%") { return [int]$Matches[1] }
     return $null
@@ -43,14 +40,9 @@ function Parse-HuaweiMemory {
 # ── Parsing output Huawei Temperature ────────────────────
 function Parse-HuaweiTemp {
     param($output)
-    # Cek format S5700 ("Current Temperature : 42" atau "Temperature: 42")
     if ($output -match "Temperature.*?:\s*(\d{2,3})") { return [int]$Matches[1] }
-    
-    # Cek format Tabel S310 (Mencari baris LSW_TEMP secara spesifik, melewati 5 kolom batas suhu)
     if ($output -match "LSW_TEMP\s+Normal\s+(?:\d+\s+){5}(\d+)") { return [int]$Matches[1] }
-    # Fallback Tabel (Ambil baris pertama yang berstatus Normal)
     if ($output -match "Normal\s+(?:\d+\s+){5}(\d+)") { return [int]$Matches[1] }
-    
     if ($output -match "(\d{2,3})\s*[Cc]") { return [int]$Matches[1] }
     return $null
 }
@@ -74,7 +66,6 @@ function Poll-Device {
         error       = $null
     }
 
-    # Ping check
     $reachable = Test-Connection -ComputerName $device.ip -Count 1 -Quiet -TimeoutSeconds 3
     if (-not $reachable) {
         $result.status = "offline"
@@ -82,75 +73,69 @@ function Poll-Device {
         return $result
     }
 
-    # DEKLARASI $sid DI SINI AGAR TIDAK ERROR SAAT GAGAL LOGIN
     $sid = $null
 
     try {
         $pass    = ConvertTo-SecureString $device.password -AsPlainText -Force
         $cred    = New-Object System.Management.Automation.PSCredential($device.username, $pass)
         
-        # 1. Buka sesi SSH
+        # 1. Buka sesi SSH (Timeout 15s)
         $session = New-SSHSession -ComputerName $device.ip -Port $device.port `
-                    -Credential $cred -AcceptKey -ConnectionTimeout 10 -ErrorAction Stop
+                    -Credential $cred -AcceptKey -ConnectionTimeout 15 -ErrorAction Stop
 
+        Start-Sleep -Milliseconds 500
         $sid = $session.SessionId
 
-        # 2. Tangkap semua keluarga Huawei, termasuk S310 dan S5720
         if ($device.type -match "HUAWEI|S310|S5720|S5700") {
             
             $stream = New-SSHShellStream -SessionId $sid -TerminalName "vt100"
             Start-Sleep -Milliseconds 800
             
-            # Matikan pagination
             $stream.WriteLine("screen-length 0 temporary")
             Start-Sleep -Milliseconds 500
             $null = $stream.Read()
 
-            # CPU
             $stream.WriteLine("display cpu-usage")
             Start-Sleep -Milliseconds 800
             $cpuOut = $stream.Read()
 
-            # Memory (Kirim dua perintah sekaligus untuk S310 dan S5700)
             $stream.WriteLine("display memory-usage")
             Start-Sleep -Milliseconds 500
             $stream.WriteLine("display memory") 
             Start-Sleep -Milliseconds 800
             $memOut = $stream.Read()
 
-            # Temperature (Kirim dua perintah agar S310 memunculkan tabelnya)
+            # Temperature (Bombardir 4 variasi command)
             $stream.WriteLine("display temperature")
-            Start-Sleep -Milliseconds 500
+            Start-Sleep -Milliseconds 300
             $stream.WriteLine("display device temperature") 
+            Start-Sleep -Milliseconds 300
+            $stream.WriteLine("display temperature all")
+            Start-Sleep -Milliseconds 300
+            $stream.WriteLine("display device temperature all")
             Start-Sleep -Milliseconds 800
             $tmpOut = $stream.Read()
 
-            # Uptime
             $stream.WriteLine("display version")
             Start-Sleep -Milliseconds 800
             $uptOut = $stream.Read()
 
-            # Interface
             $stream.WriteLine("display interface brief")
             Start-Sleep -Milliseconds 1200
             $intOut = $stream.Read()
 
-            # Parsing data menggunakan fungsi yang sudah diperbaiki
             $result.cpu         = Parse-HuaweiCPU    $cpuOut
             $result.memory      = Parse-HuaweiMemory $memOut
             $result.temperature = Parse-HuaweiTemp   $tmpOut
 
-            # Uptime
             if ($uptOut -match "uptime is (.+)") { $result.uptime = $Matches[1].Trim() }
 
-            # Interface up/down count (Perbaikan hitungan Array)
             $intLines = $intOut -split "\r?\n"
             $up   = @($intLines | Where-Object { $_ -match "\bup\b" }).Count
             $down = @($intLines | Where-Object { $_ -match "\bdown\b" }).Count
             $result.interfaces = @{ up = $up; down = $down }
 
         } else {
-            # Exec Channel untuk device non-Huawei
             $cpuOut = (Invoke-SSHCommand -SessionId $sid -Command "show processes cpu" -TimeOut 10).Output -join "`n"
             $memOut = (Invoke-SSHCommand -SessionId $sid -Command "show memory"         -TimeOut 10).Output -join "`n"
 
@@ -158,14 +143,12 @@ function Poll-Device {
             if ($memOut -match "(\d+)%") { $result.memory = [int]$Matches[1] }
         }
 
-        # Tutup sesi
         Remove-SSHSession -SessionId $sid | Out-Null
         $result.status = "online"
 
     } catch {
         $result.status = "error"
         $result.error  = $_.Exception.Message
-        # Karena $sid sudah dideklarasikan di luar try, baris ini aman dieksekusi
         if ($null -ne $sid) { Remove-SSHSession -SessionId $sid -ErrorAction SilentlyContinue | Out-Null }
     }
 
@@ -246,12 +229,6 @@ foreach ($row in $csvData) {
         port     = 22              
     }
 
-    # ATURAN TELNET DIMATIKAN SEMENTARA AGAR RBG_AS_TIM_CLAY BISA MASUK VIA SSH
-    # if ($device.type -match "AT-x230") {
-    #     $device.protocol = "TELNET"
-    #     $device.port = 23
-    # }
-
     Write-Host "  -> $($device.hostname) ($($device.ip))..." -NoNewline
     
     if ($device.protocol -eq "TELNET") {
@@ -288,3 +265,23 @@ $output | ConvertTo-Json -Depth 5 | Set-Content -Path $jsonPath -Encoding UTF8
 
 Write-Host "`n✅ Data tersimpan: $jsonPath" -ForegroundColor Green
 Write-Host "   Online: $($output.online) / $($output.total) device`n" -ForegroundColor Cyan
+
+# ── PUSH KE GITHUB (UNTUK VERCEL) ─────────────────────────
+Write-Host "--- Mengirim data ke GitHub untuk Auto-Deploy Vercel ---" -ForegroundColor Cyan
+
+try {
+    # Pindah ke root folder repository (Satu tingkat di atas folder scripts)
+    Set-Location -Path "$PSScriptRoot\.."
+    
+    # Amankan dengan git pull sebelum push untuk mencegah konflik error
+    git pull --rebase origin main
+    
+    git add data/metrics.json
+    git commit -m "Auto-update metrics $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
+    git push origin main
+    
+    Write-Host "✅ Data berhasil dikirim ke GitHub! Vercel akan update dalam beberapa detik." -ForegroundColor Green
+} catch {
+    Write-Host "❌ Gagal mengirim ke GitHub. Pastikan Git sudah ter-install dan terkoneksi." -ForegroundColor Red
+    Write-Host $_.Exception.Message -ForegroundColor Red
+}
