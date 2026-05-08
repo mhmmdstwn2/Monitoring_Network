@@ -1,23 +1,37 @@
-// Backend Logic - Node.js
-const fs = require('fs');
-const path = require('path');
+import { MongoClient } from 'mongodb';
 
-export default function handler(req, res) {
-    const { action, email, password, apiKey } = req.body;
-    const dbPath = path.join(process.cwd(), 'data', 'users.json');
-    let users = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+const uri = process.env.MONGODB_URI;
+const client = new MongoClient(uri);
 
-    if (action === 'signup') {
-        if (users.find(u => u.email === email)) return res.status(400).json({ error: 'User exists' });
-        const newUser = { email, password, token: btoa(email + Date.now()) }; // Token sederhana
-        users.push(newUser);
-        fs.writeFileSync(dbPath, JSON.stringify(users));
-        return res.json({ success: true, token: newUser.token });
-    }
+export default async function handler(req, res) {
+    if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' });
+    
+    const { action, email, password } = req.body;
 
-    if (action === 'login') {
-        const user = users.find(u => u.email === email && u.password === password);
-        if (user) return res.json({ success: true, token: user.token });
-        return res.status(401).json({ error: 'Invalid credentials' });
+    try {
+        await client.connect();
+        const db = client.db('netmon_db');
+        const users = db.collection('users');
+
+        if (action === 'signup') {
+            const userExists = await users.findOne({ email });
+            if (userExists) return res.status(400).json({ success: false, message: 'Email sudah terdaftar' });
+            
+            const result = await users.insertOne({ email, password, createdAt: new Date() });
+            return res.json({ success: true, message: 'Berhasil daftar, silakan login' });
+        }
+
+        if (action === 'login') {
+            const user = await users.findOne({ email, password });
+            if (!user) return res.status(401).json({ success: false, message: 'Email atau Password salah' });
+            
+            // Token sederhana untuk session
+            const token = btoa(user.email + ":" + user._id);
+            return res.json({ success: true, token });
+        }
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    } finally {
+        await client.close();
     }
 }
