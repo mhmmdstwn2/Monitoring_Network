@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+<script>
+    // ── Security Check ────────────────────────────────────
+    // Jika tidak ada token di localStorage, paksa kembali ke login
+    if (!localStorage.getItem('netmon_token')) {
+        window.location.href = 'auth.html';
+    }
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Network Monitor — IT Dashboard</title>
@@ -323,6 +330,7 @@ main { padding: 24px 28px; }
       <div id="last-update">belum ada data</div>
     </div>
     <button class="refresh-btn" onclick="loadData()">↻ REFRESH</button>
+    <button class="refresh-btn" onclick="logout()" style="border-color: #ff3d57; color: #ff3d57;">LOGOUT</button>
   </div>
 </header>
 
@@ -355,6 +363,12 @@ main { padding: 24px 28px; }
 </main>
 
 <script>
+// ── Auth Logic ─────────────────────────────────────────
+function logout() {
+    localStorage.removeItem('netmon_token');
+    window.location.href = 'auth.html';
+}
+
 // ── Clock ──────────────────────────────────────────────
 function updateClock() {
   const now = new Date();
@@ -405,11 +419,10 @@ function renderCard(d, idx) {
   const isOffline = d.status === 'offline';
   const isError   = d.status === 'error';
 
-  // warning jika CPU/mem/temp tinggi
   const hasWarn = isOnline && (
-    (d.cpu         !== null && d.cpu         >= 70) ||
-    (d.memory      !== null && d.memory      >= 70) ||
-    (d.temperature !== null && d.temperature >= 50)
+    (d.cpu          !== null && d.cpu          >= 70) ||
+    (d.memory       !== null && d.memory       >= 70) ||
+    (d.temperature  !== null && d.temperature  >= 50)
   );
 
   const cardClass = isOffline ? 'offline' : isError ? 'offline' : hasWarn ? 'warning' : 'online';
@@ -433,8 +446,8 @@ function renderCard(d, idx) {
 
     body = `
     <div class="card-body">
-      ${metricBar('CPU Usage',    '⚡', d.cpu,         '%', 70, 90)}
-      ${metricBar('Memory',       '◈', d.memory,      '%', 70, 90)}
+      ${metricBar('CPU Usage',    '⚡', d.cpu,          '%', 70, 90)}
+      ${metricBar('Memory',       '◈', d.memory,       '%', 70, 90)}
       ${metricBar('Temperature',  '⬥', d.temperature, '°C', 50, 65)}
       ${ifaceHtml}
     </div>`;
@@ -457,19 +470,29 @@ function renderCard(d, idx) {
   </div>`;
 }
 
-// ── Load data dari metrics.json ────────────────────────
+// ── Load data via API Backend ────────────────────────
 async function loadData() {
+  const token = localStorage.getItem('netmon_token');
   try {
-    const r    = await fetch(`data/metrics.json?t=${Date.now()}`);
+    // Memanggil API Backend dengan Header Authorization
+    const r = await fetch(`/api/get-metrics`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (r.status === 403) {
+        logout();
+        return;
+    }
+
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
 
     // Summary
     const warn = data.devices.filter(d =>
       d.status === 'online' && (
-        (d.cpu         >= 70) ||
-        (d.memory      >= 70) ||
-        (d.temperature >= 50)
+        (d.cpu          >= 70) ||
+        (d.memory       >= 70) ||
+        (d.temperature  >= 50)
       )).length;
 
     document.getElementById('s-total').textContent  = data.total;
@@ -493,7 +516,7 @@ async function loadData() {
           Gagal memuat data
         </div>
         <div style="font-family:var(--mono);color:var(--text-dim);font-size:11px;margin-top:8px">
-          Pastikan Collect-Metrics.ps1 sudah dijalankan<br>dan file data/metrics.json tersedia
+          Sesi mungkin berakhir atau file data belum tersedia.
         </div>
         <button class="refresh-btn" onclick="loadData()" style="margin-top:16px">↻ COBA LAGI</button>
       </div>`;
