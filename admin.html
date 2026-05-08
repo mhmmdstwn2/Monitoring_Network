@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NETMON | Management Console</title>
+    <title>NETMON | Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #2563eb;
-            --primary-hover: #1d4ed8;
+            --primary-light: #eff6ff;
             --bg: #f8fafc;
             --sidebar: #ffffff;
             --text-main: #1e293b;
@@ -16,7 +16,8 @@
             --border: #e2e8f0;
             --danger: #ef4444;
             --success: #10b981;
-            --monitor-bg: #0a0c12;
+            --sidebar-width: 260px;
+            --sidebar-collapsed: 80px;
         }
 
         body {
@@ -25,319 +26,290 @@
             font-family: 'Inter', sans-serif;
             margin: 0;
             display: flex;
-            min-height: 100vh;
+            transition: all 0.3s ease;
         }
 
-        /* Sidebar */
+        /* SIDEBAR INTERAKTIF */
         .sidebar {
-            width: 260px;
+            width: var(--sidebar-width);
             background: var(--sidebar);
             border-right: 1px solid var(--border);
-            padding: 24px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             position: fixed;
             height: 100vh;
-            z-index: 100;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        body.collapsed .sidebar { width: var(--sidebar-collapsed); padding: 20px 10px; }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            white-space: nowrap;
         }
 
         .logo {
             font-weight: 700;
             font-size: 1.25rem;
             color: var(--primary);
-            margin-bottom: 40px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
+        body.collapsed .logo span { display: none; }
+
+        .toggle-btn {
+            background: var(--primary-light);
+            border: none;
+            color: var(--primary);
+            padding: 5px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Nav Menu */
         .nav-menu { flex: 1; }
         .nav-item {
-            padding: 12px 16px;
+            padding: 12px 15px;
             border-radius: 8px;
             color: var(--text-muted);
             text-decoration: none;
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 12px;
             margin-bottom: 8px;
             font-weight: 500;
-            transition: 0.2s;
             cursor: pointer;
+            transition: 0.2s;
             border: none;
             background: none;
             width: 100%;
-            text-align: left;
-            font-family: inherit;
-        }
-        .nav-item.active { background: #eff6ff; color: var(--primary); }
-        .nav-item:hover:not(.active) { background: #f1f5f9; }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            margin-left: 260px;
-            padding: 40px;
-            max-width: 1100px;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 32px;
-        }
-
-        h1 { font-size: 1.8rem; margin: 0; font-weight: 700; }
-
-        /* Stats Card */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            margin-bottom: 32px;
-        }
-        .card {
-            background: #fff;
-            padding: 24px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-
-        /* Form Controls */
-        .action-bar {
-            background: #fff;
-            padding: 24px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-bottom: 32px;
-            align-items: center;
-        }
-        
-        .input-wrapper {
-            position: relative;
-            flex: 1;
-            min-width: 200px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            outline: none;
-            font-family: inherit;
-            box-sizing: border-box;
-            background: #fcfcfc;
-        }
-
-        input:focus, select:focus { border-color: var(--primary); background: #fff; }
-
-        .toggle-pw {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: var(--text-muted);
-            font-size: 1.2rem;
-            user-select: none;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: 0.2s;
             white-space: nowrap;
         }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-hover); }
 
-        /* Table Area */
-        .table-container {
+        .nav-item:hover { background: #f1f5f9; color: var(--text-main); }
+        .nav-item.active { background: var(--primary-light); color: var(--primary); }
+        body.collapsed .nav-item span { display: none; }
+
+        /* TOP BAR */
+        .top-bar {
+            height: 70px;
             background: #fff;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            overflow: hidden;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 900;
         }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #f8fafc; text-align: left; padding: 16px; font-size: 0.875rem; color: var(--text-muted); border-bottom: 1px solid var(--border); }
-        td { padding: 16px; border-bottom: 1px solid var(--border); }
-        
-        .badge {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        .badge-admin { background: #fee2e2; color: #b91c1c; }
-        .badge-user { background: #dcfce7; color: #15803d; }
 
-        /* MONITOR VIEW */
+        .search-box {
+            background: #f1f5f9;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            width: 300px;
+        }
+        .search-box input {
+            background: none;
+            border: none;
+            padding: 5px;
+            outline: none;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+        }
+        .avatar {
+            width: 35px;
+            height: 35px;
+            background: var(--primary);
+            color: #fff;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-weight: bold;
+        }
+
+        /* MAIN AREA */
+        .main-wrapper {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: margin-left 0.3s ease;
+        }
+        body.collapsed .main-wrapper { margin-left: var(--sidebar-collapsed); }
+
+        .content-area { padding: 30px; max-width: 1200px; }
+
+        /* Monitor TV Container */
         #section-monitor {
-            background: var(--monitor-bg);
-            border-radius: 16px;
-            border: 4px solid #1e293b;
+            background: #000;
+            border-radius: 12px;
             overflow: hidden;
-            position: relative;
+            border: 3px solid #1e293b;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         iframe { width: 100%; height: 600px; border: none; }
+
+        /* Animasi Transisi */
+        .fade-in { animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 0; padding: 0; }
+            .main-wrapper { margin-left: 0; }
+            body.collapsed .sidebar { width: var(--sidebar-collapsed); padding: 10px; }
+        }
     </style>
 </head>
-<body>
+<body id="body-tag">
 
     <div class="sidebar">
-        <div class="logo">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-            NETMON
+        <div class="sidebar-header">
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                <span>NETMON</span>
+            </div>
+            <button class="toggle-btn" onclick="toggleSidebar()">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
         </div>
+
         <nav class="nav-menu">
-            <button class="nav-item active" id="btn-users" onclick="showSection('users')">User Management</button>
-            <button class="nav-item" id="btn-monitor" onclick="showSection('monitor')">Live Monitor (TV)</button>
+            <button class="nav-item active" id="btn-users" onclick="showSection('users')">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m8-10a4 4 0 100-8 4 4 0 000 8zm11 5l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                <span>Management</span>
+            </button>
+            <button class="nav-item" id="btn-monitor" onclick="showSection('monitor')">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                <span>Live Monitor</span>
+            </button>
         </nav>
-        <button class="nav-item" style="color:var(--danger); margin-top: auto;" onclick="logout()">Logout</button>
+
+        <button class="nav-item" style="color: var(--danger); margin-top: auto;" onclick="logout()">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            <span>Logout</span>
+        </button>
     </div>
 
-    <div class="main-content">
-        <header>
-            <h1 id="page-title">User Management</h1>
-            <div id="admin-name" style="font-weight: 500; color: var(--text-muted);"></div>
-        </header>
-
-        <div id="section-users">
-            <div class="stats-grid">
-                <div class="card">
-                    <div style="color: var(--text-muted); font-size: 0.875rem;">Total Accounts</div>
-                    <div id="count-users" style="font-size: 1.5rem; font-weight: 700; margin-top: 5px;">0</div>
-                </div>
-                <div class="card">
-                    <div style="color: var(--text-muted); font-size: 0.875rem;">Security Status</div>
-                    <div style="color: var(--success); font-weight: 600; margin-top: 5px;">● Active Firewall</div>
-                </div>
+    <div class="main-wrapper">
+        <div class="top-bar">
+            <div class="search-box">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" placeholder="Search user or status...">
             </div>
-
-            <div class="action-bar">
-                <div class="input-wrapper">
-                    <input type="text" id="new_user" placeholder="Enter Username...">
+            <div class="user-profile">
+                <div style="text-align: right;">
+                    <div id="u-name" style="font-weight: 700; font-size: 0.9rem;">Admin Awan</div>
+                    <div id="u-role" style="font-size: 0.75rem; color: var(--text-muted);">Super Administrator</div>
                 </div>
-                
-                <div class="input-wrapper">
-                    <input type="password" id="new_pass" placeholder="Enter Access Key...">
-                    <span class="toggle-pw" onclick="togglePassword()">👁️</span>
-                </div>
-
-                <div class="input-wrapper" style="flex: 0.5;">
-                    <select id="new_role">
-                        <option value="user">User (Viewer)</option>
-                        <option value="admin">Admin (Full Access)</option>
-                    </select>
-                </div>
-
-                <button class="btn btn-primary" onclick="addUser()">+ Create User</button>
-            </div>
-
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>USERNAME</th>
-                            <th>ACCESS ROLE</th>
-                            <th style="text-align: right;">MANAGEMENT</th>
-                        </tr>
-                    </thead>
-                    <tbody id="user-list"></tbody>
-                </table>
+                <div class="avatar" id="u-initial">A</div>
             </div>
         </div>
 
-        <div id="section-monitor" style="display: none;">
-            <div style="background:#1e293b; padding: 10px 20px; display: flex; justify-content: space-between; font-family: monospace; color:#00d4ff;">
-                <span>● LIVE_FEED_STATUS_OK</span>
-                <span id="live-clock">00:00:00</span>
+        <div class="content-area">
+            <div id="section-users" class="fade-in">
+                <h1 style="margin-bottom: 25px;">User Management</h1>
+                <div style="background: #fff; padding: 25px; border-radius: 12px; border: 1px solid var(--border);">
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <input type="text" id="new_user" placeholder="Username" style="flex:1; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+                        <input type="password" id="new_pass" placeholder="Password" style="flex:1; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+                        <select id="new_role" style="padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                        <button onclick="addUser()" style="background: var(--primary); color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">+ Create</button>
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead><tr style="text-align: left; color: var(--text-muted); border-bottom: 1px solid var(--border);">
+                            <th style="padding: 10px;">USERNAME</th>
+                            <th style="padding: 10px;">ROLE</th>
+                            <th style="padding: 10px; text-align: right;">ACTION</th>
+                        </tr></thead>
+                        <tbody id="user-list"></tbody>
+                    </table>
+                </div>
             </div>
-            <iframe src="index.html" id="monitor-frame"></iframe>
+
+            <div id="section-monitor" style="display: none;" class="fade-in">
+                <div style="background: #1e293b; padding: 10px 20px; color: #00d4ff; display: flex; justify-content: space-between; font-family: monospace;">
+                    <span>● LIVE_FEED_ACTIVE</span>
+                    <span id="live-clock">00:00:00</span>
+                </div>
+                <iframe src="index.html" id="monitor-frame"></iframe>
+            </div>
         </div>
     </div>
 
     <script>
-        // Check Session
-        if (localStorage.getItem('netmon_role') !== 'admin') { window.location.href = 'login.html'; }
-        document.getElementById('admin-name').innerText = "SuperAdmin: " + (localStorage.getItem('netmon_user') || 'Awan');
-
-        // Toggle Password Visibility
-        function togglePassword() {
-            const pwInput = document.getElementById('new_pass');
-            pwInput.type = pwInput.type === 'password' ? 'text' : 'password';
+        // Logika Sidebar Collapse
+        function toggleSidebar() {
+            document.getElementById('body-tag').classList.toggle('collapsed');
         }
 
-        // Tab Switching
+        // Ambil Data Profil dari Storage
+        const currentAwan = localStorage.getItem('netmon_user') || 'Awan';
+        document.getElementById('u-name').innerText = currentAwan;
+        document.getElementById('u-initial').innerText = currentAwan.charAt(0).toUpperCase();
+
+        // Switch Halaman
         function showSection(section) {
-            document.getElementById('section-users').style.display = section === 'users' ? 'block' : 'none';
-            document.getElementById('section-monitor').style.display = section === 'monitor' ? 'block' : 'none';
-            document.getElementById('btn-users').classList.toggle('active', section === 'users');
-            document.getElementById('btn-monitor').classList.toggle('active', section === 'monitor');
-            document.getElementById('page-title').innerText = section === 'users' ? 'User Management' : 'Live Monitor';
-            if(section === 'users') loadUsers();
+            const isUser = section === 'users';
+            document.getElementById('section-users').style.display = isUser ? 'block' : 'none';
+            document.getElementById('section-monitor').style.display = isUser ? 'none' : 'block';
+            document.getElementById('btn-users').classList.toggle('active', isUser);
+            document.getElementById('btn-monitor').classList.toggle('active', !isUser);
+            if(isUser) loadUsers();
         }
 
-        // Clock for TV
         setInterval(() => { document.getElementById('live-clock').innerText = new Date().toLocaleTimeString(); }, 1000);
 
-        // API ACTIONS
         async function loadUsers() {
-            try {
-                const res = await fetch('/api/admin-action?action=list');
-                const users = await res.json();
-                document.getElementById('count-users').innerText = users.length;
-                const container = document.getElementById('user-list');
-                container.innerHTML = users.map(u => `
-                    <tr>
-                        <td style="font-weight: 600;">${u.username}</td>
-                        <td><span class="badge ${u.role === 'admin' ? 'badge-admin' : 'badge-user'}">${u.role || 'user'}</span></td>
-                        <td style="text-align: right;">
-                            <button onclick="deleteUser('${u.username}')" style="color:var(--danger); background:none; border:none; cursor:pointer; font-weight:600;">Delete Access</button>
-                        </td>
-                    </tr>
-                `).join('');
-            } catch (err) { console.error("API Error"); }
+            const res = await fetch('/api/admin-action?action=list');
+            const users = await res.json();
+            const container = document.getElementById('user-list');
+            container.innerHTML = users.map(u => `
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td style="padding: 15px; font-weight: 600;">${u.username}</td>
+                    <td style="padding: 15px;"><span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; background: ${u.role==='admin'?'#fee2e2':'#dcfce7'}; color: ${u.role==='admin'?'#b91c1c':'#15803d'};">${u.role||'user'}</span></td>
+                    <td style="padding: 15px; text-align: right;"><button onclick="deleteUser('${u.username}')" style="color:var(--danger); border:none; background:none; cursor:pointer;">Delete</button></td>
+                </tr>
+            `).join('');
         }
 
         async function addUser() {
             const username = document.getElementById('new_user').value;
             const password = document.getElementById('new_pass').value;
             const role = document.getElementById('new_role').value;
-
-            if(!username || !password) return alert("All fields are required!");
-
-            // Update: Mengirim role juga ke backend
             const res = await fetch('/api/auth', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ action: 'signup', username, password, role })
             });
-
             const data = await res.json();
-            if(data.success) {
-                alert("Account Created Successfully!");
-                document.getElementById('new_user').value = "";
-                document.getElementById('new_pass').value = "";
-                loadUsers();
-            } else { alert(data.message); }
+            if(data.success) { loadUsers(); alert("Success!"); }
         }
 
-        async function deleteUser(username) {
-            if(username === localStorage.getItem('netmon_user')) return alert("Self-deletion is blocked!");
-            if(confirm('Revoke access for ' + username + '?')) {
-                await fetch('/api/admin-action', {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'delete', username })
-                });
+        async function deleteUser(u) {
+            if(confirm('Delete '+u+'?')) {
+                await fetch('/api/admin-action', { method: 'POST', body: JSON.stringify({ action: 'delete', username: u }) });
                 loadUsers();
             }
         }
