@@ -1,0 +1,548 @@
+{
+  "online": 26,
+  "total": 33,
+  "offline": 7,
+  "generated_at": "2026-05-08 10:21:42",
+  "devices": [
+    {
+      "hostname": "RBG_AS_WAREHOUSE",
+      "ip": "10.7.3.10",
+      "protocol": "SSH",
+      "type": "HUAWEI S5700",
+      "status": "online",
+      "cpu": 8,
+      "memory": 49,
+      "temperature": null,
+      "uptime": "6 weeks, 3 days, 23 hours, 1 minute",
+      "interfaces": {
+        "up": 12,
+        "down": 28
+      },
+      "last_update": "2026-05-08 10:16:45",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_PACKER",
+      "ip": "10.7.3.11",
+      "protocol": "SSH",
+      "type": "HUAWEI S5700",
+      "status": "online",
+      "cpu": 8,
+      "memory": 49,
+      "temperature": null,
+      "uptime": "6 weeks, 2 days, 20 hours, 58 minutes",
+      "interfaces": {
+        "up": 12,
+        "down": 30
+      },
+      "last_update": "2026-05-08 10:16:57",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_PALLETIZER_B",
+      "ip": "10.7.3.12",
+      "protocol": "SSH",
+      "type": "HUAWEI S5700",
+      "status": "online",
+      "cpu": 8,
+      "memory": 49,
+      "temperature": null,
+      "uptime": "6 weeks, 2 days, 20 hours, 58 minutes",
+      "interfaces": {
+        "up": 9,
+        "down": 31
+      },
+      "last_update": "2026-05-08 10:17:08",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_PALLETIZER_A",
+      "ip": "10.7.3.13",
+      "protocol": "SSH",
+      "type": "HUAWEI S5700",
+      "status": "online",
+      "cpu": 7,
+      "memory": 49,
+      "temperature": null,
+      "uptime": "6 weeks, 2 days, 20 hours, 58 minutes",
+      "interfaces": {
+        "up": 8,
+        "down": 32
+      },
+      "last_update": "2026-05-08 10:17:18",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_TIMB_OUT",
+      "ip": "10.7.3.14",
+      "protocol": "SSH",
+      "type": "HUAWEI S5700",
+      "status": "online",
+      "cpu": 7,
+      "memory": 49,
+      "temperature": null,
+      "uptime": "6 weeks, 3 days, 23 hours, 0 minute",
+      "interfaces": {
+        "up": 8,
+        "down": 32
+      },
+      "last_update": "2026-05-08 10:17:29",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_KANTOR KONSTRUKSI 1",
+      "ip": "10.7.3.15",
+      "protocol": "SSH",
+      "type": "HUAWEI S5700",
+      "status": "online",
+      "cpu": 10,
+      "memory": 49,
+      "temperature": null,
+      "uptime": "6 weeks, 3 days, 23 hours, 2 minutes",
+      "interfaces": {
+        "up": 17,
+        "down": 26
+      },
+      "last_update": "2026-05-08 10:17:40",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_BATUKAPUR",
+      "ip": "10.7.3.16",
+      "protocol": "SSH",
+      "type": "HUAWEI S5700",
+      "status": "online",
+      "cpu": 23,
+      "memory": 25,
+      "temperature": null,
+      "uptime": "6 weeks, 3 days, 23 hours, 2 minutes",
+      "interfaces": {
+        "up": 10,
+        "down": 15
+      },
+      "last_update": "2026-05-08 10:17:50",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_MAINSUB",
+      "ip": "10.7.3.17",
+      "protocol": "SSH",
+      "type": "HUAWEI S5700",
+      "status": "online",
+      "cpu": 8,
+      "memory": 49,
+      "temperature": null,
+      "uptime": "25 weeks, 4 days, 18 hours, 25 minutes",
+      "interfaces": {
+        "up": 10,
+        "down": 32
+      },
+      "last_update": "2026-05-08 10:18:01",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_DISTRANS",
+      "ip": "10.7.3.18",
+      "protocol": "SSH",
+      "type": "HUAWEI S5720",
+      "status": "online",
+      "cpu": 15,
+      "memory": 26,
+      "temperature": null,
+      "uptime": "6 weeks, 3 days, 23 hours, 2 minutes",
+      "interfaces": {
+        "up": 15,
+        "down": 28
+      },
+      "last_update": "2026-05-08 10:18:13",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_WORKSHOP",
+      "ip": "10.7.3.19",
+      "protocol": "SSH",
+      "type": "HUAWEI S5720",
+      "status": "online",
+      "cpu": 9,
+      "memory": 50,
+      "temperature": null,
+      "uptime": "2 weeks, 5 days, 18 hours, 36 minutes",
+      "interfaces": {
+        "up": 17,
+        "down": 23
+      },
+      "last_update": "2026-05-08 10:18:23",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_TIM_CLAY",
+      "ip": "10.7.3.20",
+      "protocol": "SSH",
+      "type": "AT-x230-28GP",
+      "status": "error",
+      "cpu": null,
+      "memory": null,
+      "temperature": null,
+      "uptime": null,
+      "interfaces": [],
+      "last_update": "2026-05-08 10:18:34",
+      "error": "No connection could be made because the target machine actively refused it."
+    },
+    {
+      "hostname": "RBG_AS_WTP",
+      "ip": "10.7.3.21",
+      "protocol": "SSH",
+      "type": "AT-x230-28GP",
+      "status": "offline",
+      "cpu": null,
+      "memory": null,
+      "temperature": null,
+      "uptime": null,
+      "interfaces": [],
+      "last_update": "2026-05-08 10:18:36",
+      "error": "Ping gagal"
+    },
+    {
+      "hostname": "RBG_AS_BARAK",
+      "ip": "10.7.3.22",
+      "protocol": "SSH",
+      "type": "AT-x230-28GP",
+      "status": "error",
+      "cpu": null,
+      "memory": null,
+      "temperature": null,
+      "uptime": null,
+      "interfaces": [],
+      "last_update": "2026-05-08 10:18:39",
+      "error": "No connection could be made because the target machine actively refused it."
+    },
+    {
+      "hostname": "RBG_AS_SILO",
+      "ip": "10.7.3.23",
+      "protocol": "SSH",
+      "type": "AT-x230-28GP",
+      "status": "error",
+      "cpu": null,
+      "memory": null,
+      "temperature": null,
+      "uptime": null,
+      "interfaces": [],
+      "last_update": "2026-05-08 10:18:41",
+      "error": "No connection could be made because the target machine actively refused it."
+    },
+    {
+      "hostname": "RBG_AS_POSTAMBANG",
+      "ip": "10.7.3.26",
+      "protocol": "SSH",
+      "type": "HUAWEI S5720",
+      "status": "online",
+      "cpu": 18,
+      "memory": 22,
+      "temperature": null,
+      "uptime": "6 weeks, 3 days, 17 hours, 0 minute",
+      "interfaces": {
+        "up": 7,
+        "down": 16
+      },
+      "last_update": "2026-05-08 10:18:43",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_FINISH MILL",
+      "ip": "10.7.3.27",
+      "protocol": "SSH",
+      "type": "HUAWEI S5720",
+      "status": "online",
+      "cpu": 21,
+      "memory": 25,
+      "temperature": null,
+      "uptime": "1 week, 3 days, 23 hours, 1 minute",
+      "interfaces": {
+        "up": 10,
+        "down": 13
+      },
+      "last_update": "2026-05-08 10:18:54",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_KCM",
+      "ip": "10.7.3.28",
+      "protocol": "SSH",
+      "type": "HUAWEI S5720",
+      "status": "online",
+      "cpu": 23,
+      "memory": 26,
+      "temperature": null,
+      "uptime": "6 weeks, 3 days, 17 hours, 0 minute",
+      "interfaces": {
+        "up": 8,
+        "down": 15
+      },
+      "last_update": "2026-05-08 10:19:05",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_Rawmill",
+      "ip": "10.7.3.29",
+      "protocol": "SSH",
+      "type": "HUAWEI S5720",
+      "status": "online",
+      "cpu": 21,
+      "memory": 26,
+      "temperature": null,
+      "uptime": "5 weeks, 1 day, 23 hours, 8 minutes",
+      "interfaces": {
+        "up": 8,
+        "down": 15
+      },
+      "last_update": "2026-05-08 10:19:16",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_PML",
+      "ip": "10.7.3.30",
+      "protocol": "SSH",
+      "type": "HUAWEI S5720",
+      "status": "offline",
+      "cpu": null,
+      "memory": null,
+      "temperature": null,
+      "uptime": null,
+      "interfaces": [],
+      "last_update": "2026-05-08 10:19:27",
+      "error": "Ping gagal"
+    },
+    {
+      "hostname": "RBG_AS_MAKO",
+      "ip": "10.7.3.31",
+      "protocol": "SSH",
+      "type": "HUAWEI S5720",
+      "status": "online",
+      "cpu": 21,
+      "memory": 26,
+      "temperature": null,
+      "uptime": "6 weeks, 3 days, 16 hours, 39 minutes",
+      "interfaces": {
+        "up": 13,
+        "down": 11
+      },
+      "last_update": "2026-05-08 10:19:30",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_TIMB_02",
+      "ip": "10.7.3.32",
+      "protocol": "SSH",
+      "type": "HUAWEI S5720",
+      "status": "online",
+      "cpu": 24,
+      "memory": 26,
+      "temperature": null,
+      "uptime": "6 weeks, 3 days, 23 hours, 4 minutes",
+      "interfaces": {
+        "up": 9,
+        "down": 14
+      },
+      "last_update": "2026-05-08 10:19:42",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_CARGO IN TRANSIT",
+      "ip": "10.7.3.33",
+      "protocol": "SSH",
+      "type": "HUAWEI S5720",
+      "status": "online",
+      "cpu": 20,
+      "memory": 25,
+      "temperature": null,
+      "uptime": "6 weeks, 2 days, 22 hours, 24 minutes",
+      "interfaces": {
+        "up": 8,
+        "down": 15
+      },
+      "last_update": "2026-05-08 10:19:53",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_TIMB_INBOUND_OUT",
+      "ip": "10.7.3.34",
+      "protocol": "SSH",
+      "type": "HUAWEI S5720",
+      "status": "offline",
+      "cpu": null,
+      "memory": null,
+      "temperature": null,
+      "uptime": null,
+      "interfaces": [],
+      "last_update": "2026-05-08 10:20:04",
+      "error": "Ping gagal"
+    },
+    {
+      "hostname": "RBG_AS_K3",
+      "ip": "10.7.3.35",
+      "protocol": "SSH",
+      "type": "HUAWEI S5720",
+      "status": "online",
+      "cpu": 17,
+      "memory": 21,
+      "temperature": null,
+      "uptime": "6 weeks, 3 days, 23 hours, 5 minutes",
+      "interfaces": {
+        "up": 10,
+        "down": 13
+      },
+      "last_update": "2026-05-08 10:20:06",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_PENGADAAN",
+      "ip": "10.7.3.36",
+      "protocol": "SSH",
+      "type": "HUAWEI S5720",
+      "status": "online",
+      "cpu": 16,
+      "memory": 20,
+      "temperature": null,
+      "uptime": "6 weeks, 3 days, 23 hours, 5 minutes",
+      "interfaces": {
+        "up": 9,
+        "down": 17
+      },
+      "last_update": "2026-05-08 10:20:19",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_GU_LT 1",
+      "ip": "10.7.3.37",
+      "protocol": "SSH",
+      "type": "S310-24P4S",
+      "status": "online",
+      "cpu": 8,
+      "memory": 55,
+      "temperature": 62,
+      "uptime": "45 days, 23 hours, 1 minute",
+      "interfaces": {
+        "up": 17,
+        "down": 26
+      },
+      "last_update": "2026-05-08 10:20:30",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_GU_LT 2",
+      "ip": "10.7.3.24",
+      "protocol": "SSH",
+      "type": "S310-24P4S",
+      "status": "online",
+      "cpu": 6,
+      "memory": 54,
+      "temperature": 62,
+      "uptime": "45 days, 23 hours, 1 minute",
+      "interfaces": {
+        "up": 16,
+        "down": 25
+      },
+      "last_update": "2026-05-08 10:20:39",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_GU_LT 3",
+      "ip": "10.7.3.40",
+      "protocol": "SSH",
+      "type": "S310-24P4S",
+      "status": "online",
+      "cpu": 9,
+      "memory": 54,
+      "temperature": 62,
+      "uptime": "45 days, 23 hours, 2 minutes",
+      "interfaces": {
+        "up": 7,
+        "down": 34
+      },
+      "last_update": "2026-05-08 10:20:47",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_GU_LT2-BACKUP",
+      "ip": "10.7.3.41",
+      "protocol": "SSH",
+      "type": "S5720-28P-PWR-LI-AC",
+      "status": "online",
+      "cpu": 14,
+      "memory": 25,
+      "temperature": null,
+      "uptime": "6 weeks, 3 days, 23 hours, 5 minutes",
+      "interfaces": {
+        "up": 5,
+        "down": 34
+      },
+      "last_update": "2026-05-08 10:20:56",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_TIMB_CRUSHER",
+      "ip": "10.7.3.42",
+      "protocol": "SSH",
+      "type": "HUAWEI S5720-12TP-PWR-LI-AC",
+      "status": "online",
+      "cpu": 17,
+      "memory": 21,
+      "temperature": null,
+      "uptime": "19 weeks, 3 days, 19 hours, 13 minutes",
+      "interfaces": {
+        "up": 8,
+        "down": 14
+      },
+      "last_update": "2026-05-08 10:21:06",
+      "error": null
+    },
+    {
+      "hostname": "eks Workshop",
+      "ip": "Rusak",
+      "protocol": "SSH",
+      "type": "HUAWEI S5700",
+      "status": "offline",
+      "cpu": null,
+      "memory": null,
+      "temperature": null,
+      "uptime": null,
+      "interfaces": [],
+      "last_update": "2026-05-08 10:21:17",
+      "error": "Ping gagal"
+    },
+    {
+      "hostname": "RBG_AS_CCR_LT.1",
+      "ip": "10.7.3.7",
+      "protocol": "SSH",
+      "type": "HUAWEI S5700",
+      "status": "online",
+      "cpu": 11,
+      "memory": 50,
+      "temperature": null,
+      "uptime": "132 weeks, 4 days, 15 hours, 55 minutes",
+      "interfaces": {
+        "up": 19,
+        "down": 24
+      },
+      "last_update": "2026-05-08 10:21:20",
+      "error": null
+    },
+    {
+      "hostname": "RBG_AS_CCR_LT.2",
+      "ip": "10.7.3.8",
+      "protocol": "SSH",
+      "type": "HUAWEI S5700",
+      "status": "online",
+      "cpu": 11,
+      "memory": 50,
+      "temperature": null,
+      "uptime": "132 weeks, 4 days, 15 hours, 47 minutes",
+      "interfaces": {
+        "up": 18,
+        "down": 26
+      },
+      "last_update": "2026-05-08 10:21:31",
+      "error": null
+    }
+  ]
+}
