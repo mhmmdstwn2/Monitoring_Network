@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>NETMON - ADMIN PANEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0a0c10; color: #fff; font-family: 'Share Tech Mono', monospace; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #1e2738; padding: 12px; text-align: left; }
+        th { background: #00d4ff; color: #000; }
+        .btn-del { background: #ff4444; color: white; border: none; padding: 5px 10px; cursor: pointer; }
+        .nav { display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <h2>USER MANAGEMENT (CRUD)</h2>
+        <button onclick="logout()">LOGOUT</button>
+    </div>
+
+    <div id="form-add">
+        <input type="text" id="new_user" placeholder="Username Baru">
+        <input type="password" id="new_pass" placeholder="Password">
+        <button onclick="addUser()">+ ADD USER</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="user-list">
+            </tbody>
+    </table>
+
+    <script>
+        if (localStorage.getItem('netmon_role') !== 'admin') {
+            window.location.href = 'login.html';
+        }
+
+        async function loadUsers() {
+            const res = await fetch('/api/admin-action?action=list');
+            const users = await res.json();
+            const container = document.getElementById('user-list');
+            container.innerHTML = users.map(u => `
+                <tr>
+                    <td>${u.username}</td>
+                    <td>${u.role || 'user'}</td>
+                    <td><button class="btn-del" onclick="deleteUser('${u.username}')">DELETE</button></td>
+                </tr>
+            `).join('');
+        }
+
+        async function deleteUser(username) {
+            if(confirm('Hapus user ' + username + '?')) {
+                await fetch('/api/admin-action', {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'delete', username })
+                });
+                loadUsers();
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        loadUsers();
+    </script>
+</body>
+</html>
