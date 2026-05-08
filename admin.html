@@ -29,7 +29,7 @@
             transition: all 0.3s ease;
         }
 
-        /* SIDEBAR INTERAKTIF */
+        /* SIDEBAR COLLAPSIBLE */
         .sidebar {
             width: var(--sidebar-width);
             background: var(--sidebar);
@@ -41,7 +41,6 @@
             height: 100vh;
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1000;
-            overflow: hidden;
         }
 
         body.collapsed .sidebar { width: var(--sidebar-collapsed); padding: 20px 10px; }
@@ -54,27 +53,10 @@
             white-space: nowrap;
         }
 
-        .logo {
-            font-weight: 700;
-            font-size: 1.25rem;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
+        .logo { font-weight: 700; font-size: 1.25rem; color: var(--primary); display: flex; align-items: center; gap: 12px; }
         body.collapsed .logo span { display: none; }
 
-        .toggle-btn {
-            background: var(--primary-light);
-            border: none;
-            color: var(--primary);
-            padding: 5px;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-        }
+        .toggle-btn { background: var(--primary-light); border: none; color: var(--primary); padding: 6px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; }
 
         /* Nav Menu */
         .nav-menu { flex: 1; }
@@ -94,6 +76,7 @@
             background: none;
             width: 100%;
             white-space: nowrap;
+            font-family: inherit;
         }
 
         .nav-item:hover { background: #f1f5f9; color: var(--text-main); }
@@ -114,69 +97,67 @@
             z-index: 900;
         }
 
-        .search-box {
-            background: #f1f5f9;
-            padding: 8px 15px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            width: 300px;
-        }
-        .search-box input {
-            background: none;
-            border: none;
-            padding: 5px;
-            outline: none;
-            width: 100%;
-            font-size: 0.9rem;
-        }
+        .search-box { background: #f1f5f9; padding: 8px 15px; border-radius: 20px; display: flex; align-items: center; width: 300px; }
+        .search-box input { background: none; border: none; padding: 5px; outline: none; width: 100%; font-size: 0.9rem; }
 
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            cursor: pointer;
-        }
-        .avatar {
-            width: 35px;
-            height: 35px;
-            background: var(--primary);
-            color: #fff;
-            border-radius: 50%;
-            display: grid;
-            place-items: center;
-            font-weight: bold;
-        }
+        .user-profile { display: flex; align-items: center; gap: 15px; }
+        .avatar { width: 35px; height: 35px; background: var(--primary); color: #fff; border-radius: 50%; display: grid; place-items: center; font-weight: bold; }
 
         /* MAIN AREA */
-        .main-wrapper {
-            flex: 1;
-            margin-left: var(--sidebar-width);
-            transition: margin-left 0.3s ease;
-        }
+        .main-wrapper { flex: 1; margin-left: var(--sidebar-width); transition: margin-left 0.3s ease; }
         body.collapsed .main-wrapper { margin-left: var(--sidebar-collapsed); }
 
         .content-area { padding: 30px; max-width: 1200px; }
 
-        /* Monitor TV Container */
-        #section-monitor {
-            background: #000;
+        /* INPUT STYLES WITH EYE ICON */
+        .action-bar {
+            background: #fff;
+            padding: 20px;
             border-radius: 12px;
-            overflow: hidden;
-            border: 3px solid #1e293b;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            align-items: center;
         }
+
+        .input-group { position: relative; flex: 1; }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            box-sizing: border-box;
+            background: #fcfcfc;
+            font-family: inherit;
+        }
+
+        .input-group input:focus { border-color: var(--primary); background: #fff; }
+
+        .eye-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--text-muted);
+            user-select: none;
+            font-size: 1.1rem;
+        }
+
+        /* TABLE */
+        .table-card { background: #fff; border-radius: 12px; border: 1px solid var(--border); padding: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px; color: var(--text-muted); border-bottom: 2px solid #f1f5f9; font-size: 0.85rem; }
+        td { padding: 15px 12px; border-bottom: 1px solid #f1f5f9; }
+
+        /* TV MONITOR */
+        #section-monitor { background: #000; border-radius: 12px; overflow: hidden; border: 4px solid #1e293b; }
         iframe { width: 100%; height: 600px; border: none; }
 
-        /* Animasi Transisi */
         .fade-in { animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        @media (max-width: 768px) {
-            .sidebar { width: 0; padding: 0; }
-            .main-wrapper { margin-left: 0; }
-            body.collapsed .sidebar { width: var(--sidebar-collapsed); padding: 10px; }
-        }
     </style>
 </head>
 <body id="body-tag">
@@ -184,7 +165,7 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <div class="logo">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                 <span>NETMON</span>
             </div>
             <button class="toggle-btn" onclick="toggleSidebar()">
@@ -194,7 +175,7 @@
 
         <nav class="nav-menu">
             <button class="nav-item active" id="btn-users" onclick="showSection('users')">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m8-10a4 4 0 100-8 4 4 0 000 8zm11 5l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m8-10a4 4 0 100-8 4 4 0 000 8z"></path></svg>
                 <span>Management</span>
             </button>
             <button class="nav-item" id="btn-monitor" onclick="showSection('monitor')">
@@ -204,7 +185,7 @@
         </nav>
 
         <button class="nav-item" style="color: var(--danger); margin-top: auto;" onclick="logout()">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7"></path></svg>
             <span>Logout</span>
         </button>
     </div>
@@ -213,12 +194,12 @@
         <div class="top-bar">
             <div class="search-box">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                <input type="text" placeholder="Search user or status...">
+                <input type="text" placeholder="Search system...">
             </div>
             <div class="user-profile">
                 <div style="text-align: right;">
-                    <div id="u-name" style="font-weight: 700; font-size: 0.9rem;">Admin Awan</div>
-                    <div id="u-role" style="font-size: 0.75rem; color: var(--text-muted);">Super Administrator</div>
+                    <div id="u-name" style="font-weight: 700; font-size: 0.9rem;">Admin</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">Root Access</div>
                 </div>
                 <div class="avatar" id="u-initial">A</div>
             </div>
@@ -226,23 +207,34 @@
 
         <div class="content-area">
             <div id="section-users" class="fade-in">
-                <h1 style="margin-bottom: 25px;">User Management</h1>
-                <div style="background: #fff; padding: 25px; border-radius: 12px; border: 1px solid var(--border);">
-                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                        <input type="text" id="new_user" placeholder="Username" style="flex:1; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
-                        <input type="password" id="new_pass" placeholder="Password" style="flex:1; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
-                        <select id="new_role" style="padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+                <h1 style="margin-bottom: 25px;">Account Management</h1>
+                
+                <div class="action-bar">
+                    <div class="input-group">
+                        <input type="text" id="new_user" placeholder="Username">
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="new_pass" placeholder="Password">
+                        <span class="eye-btn" onclick="toggleEye()">👁️</span>
+                    </div>
+                    <div class="input-group" style="flex: 0.5;">
+                        <select id="new_role">
                             <option value="user">User</option>
                             <option value="admin">Admin</option>
                         </select>
-                        <button onclick="addUser()" style="background: var(--primary); color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">+ Create</button>
                     </div>
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead><tr style="text-align: left; color: var(--text-muted); border-bottom: 1px solid var(--border);">
-                            <th style="padding: 10px;">USERNAME</th>
-                            <th style="padding: 10px;">ROLE</th>
-                            <th style="padding: 10px; text-align: right;">ACTION</th>
-                        </tr></thead>
+                    <button onclick="addUser()" style="background: var(--primary); color:#fff; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:600;">+ Create</button>
+                </div>
+
+                <div class="table-card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>USERNAME</th>
+                                <th>ROLE</th>
+                                <th style="text-align: right;">ACTION</th>
+                            </tr>
+                        </thead>
                         <tbody id="user-list"></tbody>
                     </table>
                 </div>
@@ -250,7 +242,7 @@
 
             <div id="section-monitor" style="display: none;" class="fade-in">
                 <div style="background: #1e293b; padding: 10px 20px; color: #00d4ff; display: flex; justify-content: space-between; font-family: monospace;">
-                    <span>● LIVE_FEED_ACTIVE</span>
+                    <span>● LIVE_STREAM_ACTIVE</span>
                     <span id="live-clock">00:00:00</span>
                 </div>
                 <iframe src="index.html" id="monitor-frame"></iframe>
@@ -259,17 +251,18 @@
     </div>
 
     <script>
-        // Logika Sidebar Collapse
-        function toggleSidebar() {
-            document.getElementById('body-tag').classList.toggle('collapsed');
+        function toggleSidebar() { document.getElementById('body-tag').classList.toggle('collapsed'); }
+
+        // MATA PASSWORD LOGIC
+        function toggleEye() {
+            const p = document.getElementById('new_pass');
+            p.type = p.type === 'password' ? 'text' : 'password';
         }
 
-        // Ambil Data Profil dari Storage
-        const currentAwan = localStorage.getItem('netmon_user') || 'Awan';
-        document.getElementById('u-name').innerText = currentAwan;
-        document.getElementById('u-initial').innerText = currentAwan.charAt(0).toUpperCase();
+        const currentU = localStorage.getItem('netmon_user') || 'Admin';
+        document.getElementById('u-name').innerText = currentU;
+        document.getElementById('u-initial').innerText = currentU.charAt(0).toUpperCase();
 
-        // Switch Halaman
         function showSection(section) {
             const isUser = section === 'users';
             document.getElementById('section-users').style.display = isUser ? 'block' : 'none';
@@ -286,10 +279,10 @@
             const users = await res.json();
             const container = document.getElementById('user-list');
             container.innerHTML = users.map(u => `
-                <tr style="border-bottom: 1px solid #f1f5f9;">
-                    <td style="padding: 15px; font-weight: 600;">${u.username}</td>
-                    <td style="padding: 15px;"><span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; background: ${u.role==='admin'?'#fee2e2':'#dcfce7'}; color: ${u.role==='admin'?'#b91c1c':'#15803d'};">${u.role||'user'}</span></td>
-                    <td style="padding: 15px; text-align: right;"><button onclick="deleteUser('${u.username}')" style="color:var(--danger); border:none; background:none; cursor:pointer;">Delete</button></td>
+                <tr>
+                    <td style="font-weight: 600;">${u.username}</td>
+                    <td><span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight:700; background: ${u.role==='admin'?'#fee2e2':'#dcfce7'}; color: ${u.role==='admin'?'#b91c1c':'#15803d'}; text-transform:uppercase;">${u.role||'user'}</span></td>
+                    <td style="text-align: right;"><button onclick="deleteUser('${u.username}')" style="color:var(--danger); border:none; background:none; cursor:pointer; font-weight:600;">Delete</button></td>
                 </tr>
             `).join('');
         }
@@ -298,17 +291,25 @@
             const username = document.getElementById('new_user').value;
             const password = document.getElementById('new_pass').value;
             const role = document.getElementById('new_role').value;
+            if(!username || !password) return alert("Isi dulu!");
+
             const res = await fetch('/api/auth', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ action: 'signup', username, password, role })
             });
             const data = await res.json();
-            if(data.success) { loadUsers(); alert("Success!"); }
+            if(data.success) { 
+                loadUsers(); 
+                document.getElementById('new_user').value = '';
+                document.getElementById('new_pass').value = '';
+                alert("Account Created!"); 
+            }
         }
 
         async function deleteUser(u) {
-            if(confirm('Delete '+u+'?')) {
+            if(u === localStorage.getItem('netmon_user')) return alert("Jangan hapus diri sendiri!");
+            if(confirm('Delete user '+u+'?')) {
                 await fetch('/api/admin-action', { method: 'POST', body: JSON.stringify({ action: 'delete', username: u }) });
                 loadUsers();
             }
